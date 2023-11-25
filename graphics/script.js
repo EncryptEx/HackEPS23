@@ -5,8 +5,12 @@ const ctxSquare = canvas.getContext("2d");
 
 const img = new Image();
 img.src = "img/marker_client.png";
+
 const imgCollition = new Image();
 imgCollition.src = "img/red_alert.svg";
+
+const imgPick = new Image();
+imgPick.src = "img/grab.png";
 
 const DIM = 40;
 
@@ -53,6 +57,7 @@ function getDataOfFile(contents) {
 
     for (let i = 1; i < breakLine.length; i++) {
         let [customer_id, ticket_id, x, y, picking, x_y_date_time] = breakLine[i].split(';');
+        if(picking == '1') drawLocationGrab((x-1)*DIM,(y-1)*DIM);
         var index = dataCSV.findIndex((element) => element[0] === customer_id);
         if (index === -1) {
             const sec = epochConverter(x_y_date_time, shopOpeningTime)
@@ -278,6 +283,11 @@ function caculateOpenDate(breakLine) {
  */
 function drawLocationsCollition(x, y) {
     ctxIconCollition.drawImage(imgCollition, x, y, DIM, DIM);
+}
+
+
+function drawLocationGrab(x, y) {
+    ctxIconCollition.drawImage(imgPick, x, y, DIM, DIM);
 }
 /**
  * Function to set a Shared locations list 

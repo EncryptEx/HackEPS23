@@ -35,4 +35,4 @@ def get_article_coords(palnogram, article_id):
             if cell.description == article_id:
                 return x,y
 
-get_planogram('./input/planogram_table.csv')
+# get_planogram('./input/planogram_table.csv')

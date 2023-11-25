@@ -1,2 +1,2 @@
 # HackEPS23
-Bonarea Project
+BonArea Project

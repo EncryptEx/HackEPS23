@@ -8,7 +8,7 @@ class TicketEntry:
         self.ticket_id = ticket_id
 
     def getCoords(self, planogram):
-        return planogram.get(self.article_id,None)
+        return planogram.get(self.article_id,None) 
         
 
 

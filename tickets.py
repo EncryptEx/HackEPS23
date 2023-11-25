@@ -1,4 +1,5 @@
 from utils import read_csv_file
+from planogram import get_article_coords
 
 class TicketEntry:
     def __init__(self, article_id, quantity, timestamp,ticket_id):
@@ -7,8 +8,7 @@ class TicketEntry:
         self.timestamp = timestamp
         self.ticket_id = ticket_id
 
-    def getCoords(self, planogram):
-        return planogram.get(self.article_id,None)
+    
         
 
 

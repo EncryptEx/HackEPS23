@@ -6,23 +6,29 @@ from transformar_a_matriu import transformar_a_problema_lineal, obtenir_assignac
 from algorisme import minimum_assignment
 
 
+
 article_picking_time = get_article_picking_time('./input/hackathon_article_picking_time.csv')
 planogram = get_planogram('./input/planogram_table.csv')
 users = get_users_without_ticket_entries()
 users = populate_users_with_ticket_entries(users)   
 
 
+user = users.get('c1')
 
-
-matriu = transformar_a_problema_lineal(users.get('c1'), planogram) #fix me, no comptat inicial i final
+matriu = transformar_a_problema_lineal(user, planogram) #fix me, no comptat inicial i
 
 assignacio_optima = minimum_assignment(matriu)
 
-assignacions_ordenades = obtenir_assignacions_ordenades(assignacio_optima) #fix me
+ordered_ticket_entries = obtenir_assignacions_ordenades(assignacio_optima) #fix me
 
+genera_csv_out(ordered_ticket_entries, planogram, user)
+
+ç
 rows_to_add = []
 segon = 0
-while(len(assignacions_ordenades)):
+
+while():
+
     
     
 

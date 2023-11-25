@@ -2,23 +2,24 @@ import heapq
 
 def transformar_a_problema_lineal(usuari, planogram):
     matriu = []
-    for elementToPickUpFirst in usuari.get:
+    for ticketEntrieFirst in usuari.ticketEntries:
         linia = []
-        for elementToPickUpSecond in usuari.elementsToPickUp:
-            linia.append(shortestPath(elementToPickUpFirst,elementToPickUpSecond, planogram))
+        for ticketEntrieSec in usuari.ticketEntries:
+            linia.append(shortestPath(ticketEntrieFirst,ticketEntrieSec, planogram))
         matriu.append(linia)
     
     return matriu
 
 
-def shortestPath(elementToPickUpFirst, elementToPickUpSecond, planogram):
+def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
     # Coordinates of the start and end points
-    x0, y0 = elementToPickUpFirst.getCoords()
-    xf, yf = elementToPickUpSecond.getCoords()
+    x0, y0 = entryTicketPickUpFirst.getCoords(planogram)
+    xf, yf = entryTicketPickUpSecond.getCoords(planogram)
 
     # Priority queue for Dijkstra's algorithm
     pq = []
     heapq.heappush(pq, (0, (x0, y0)))  # (distance, (x, y))
+    #fix me , mirar que no estigui out of bounds
 
     # A set to keep track of visited cells
     visited = set()

@@ -1,12 +1,4 @@
-import csv
-import os
-
-# read a csv file 
-def read_csv_file(file_name):
-    with open(file_name, 'r') as f:
-        reader = csv.reader(f)
-        return list(reader)
-    
+from utils import read_csv_file
 
 
 # DOC: ./input/hackathon_article_picking_time.csv

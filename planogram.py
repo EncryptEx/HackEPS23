@@ -28,4 +28,11 @@ def get_planogram(file_name):
     return planogram
 
 
+
+def get_article_coords(palnogram, article_id):
+    for x,dict in palnogram.items():
+        for y,cell in dict.items():
+            if cell.description == article_id:
+                return x,y
+
 get_planogram('./input/planogram_table.csv')

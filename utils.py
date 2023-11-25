@@ -9,3 +9,16 @@ def read_csv_file(file_name):
         reader = csv.reader(f)
         return list(reader)
     
+
+def create_csv(file_name, headers):
+    with open(file_name, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(headers)
+
+def append_to_csv(file_name, rows):
+    with open(file_name, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        for row in rows:
+            writer.writerow(row)
+
+

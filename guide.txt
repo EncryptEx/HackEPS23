@@ -1,0 +1,53 @@
+
+
+
+
+
+usuari (
+    customer_id;
+    step_seconds;
+    picking_offset
+    ticket_id
+    enter_date_time
+
+    entradesticket(
+        article_id, quantity
+    )
+    
+)
+
+tauler(
+    celes(
+        descripcio:
+        
+    )
+)
+
+
+out :
+customer_id;ticket_id;x;y;picking;x_y_date_time
+
+
+
+
+
+
+
+
+
+
+
+
+ALGORITHM
+
+
+
+  0 1 2 3 4 5 6 7
+0 
+1
+2
+3
+4
+5
+6
+7

@@ -13,5 +13,3 @@ planogram = get_planogram('./input/planogram_table.csv')
 
 users = get_users_without_ticket_entries()
 users = populate_users_with_ticket_entries(users)
-
-a=1

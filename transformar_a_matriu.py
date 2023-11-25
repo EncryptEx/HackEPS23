@@ -1,8 +1,8 @@
 import heapq
 
-def transformarAProblemaLineal(usuari, planogram):
+def transformar_a_problema_lineal(usuari, planogram):
     matriu = []
-    for elementToPickUpFirst in usuari.elementsToPickUp:
+    for elementToPickUpFirst in usuari.get:
         linia = []
         for elementToPickUpSecond in usuari.elementsToPickUp:
             linia.append(shortestPath(elementToPickUpFirst,elementToPickUpSecond, planogram))
@@ -50,3 +50,13 @@ def shortestPath(elementToPickUpFirst, elementToPickUpSecond, planogram):
 
 
     return -1
+
+def obtenir_assignacions_ordenades(assignacio_optima, matriu=None):
+    # If only the row indices are needed
+    assignacions_ordenades = [row for row, _ in assignacio_optima]
+
+    # If the actual values from the matrix are needed
+    if matriu is not None:
+        assignacions_ordenades = [matriu[row][col] for row, col in assignacio_optima]
+
+    return assignacions_ordenades

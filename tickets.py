@@ -1,5 +1,3 @@
-
-from planogram import 
 from utils import read_csv_file
 
 class TicketEntry:

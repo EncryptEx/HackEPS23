@@ -425,7 +425,7 @@ function insertToTable(status, client_id, entry_time, exit_time, start_time, tic
         statusText = 'En ruta';
     }
     else if (status == 3) {
-        statusClass = 'awaiting';
+        statusClass = 'waiting';
         statusText = 'Esperando';
     }
 

@@ -46,6 +46,9 @@ function readFile(e) {
     };
     reader.readAsText(file);
 }
+
+// global dictionary count
+let ticketsProductListing = {};
 /**
  * Get content of the CSV file, line by line, splitting it by semicolon.
  * @param contents Content of the file
@@ -55,6 +58,7 @@ function getDataOfFile(contents) {
     const breakLine = contents.split("\n");
     const shopOpeningTime = caculateOpenDate(breakLine);
     let isPicking;
+    let productList = 0;
 
     for (let i = 1; i < breakLine.length; i++) {
         let [customer_id, ticket_id, x, y, picking, x_y_date_time] = breakLine[i].split(';');
@@ -66,11 +70,18 @@ function getDataOfFile(contents) {
                 // if(picking == '1') drawLocationGrab((x-1)*DIM,(y-1)*DIM);
                 isPicking = picking == '1';
 
-                locationsList.push({ x, y, sec, ticket_id , isPicking});
+                // get the current elements to get
+                locationsList.push({ x, y, sec, ticket_id, isPicking });
+                if (isPicking && (lastX != x || lastY != y)) {
+                    productList++;
+                    ticketsProductListing[ticket_id] = productList;
+                }
+                lastX = x;
+                lastY = y;
                 tickets.set(ticket_id, locationsList);
             }
             else { tickets.set(ticket_id, [{ x, y, sec, ticket_id }]); }
-            if(ticket_id)locationsTotal.push({ x: x, y: y, s: sec, t: ticket_id });
+            if (ticket_id) locationsTotal.push({ x: x, y: y, s: sec, t: ticket_id });
         }
 
     }
@@ -90,7 +101,7 @@ function calcWaypoints(locations) {
         var pt = locations[i];
         var dx = (pt.x - 1) * DIM;
         var dy = (pt.y - 1) * DIM;
-        waypoints.push({ x: dx, y: dy, s: pt.sec, t: (time + i), isPicking: pt.isPicking, ticket_id: pt.ticket_id});
+        waypoints.push({ x: dx, y: dy, s: pt.sec, t: (time + i), isPicking: pt.isPicking, ticket_id: pt.ticket_id });
     }
     return (waypoints);
 }
@@ -106,6 +117,7 @@ async function calculateFirstcustomerSec() {
         value = sortRouteByTime(value);
         const firstSecond = (+value[0].sec) * speedValue;
         const locations = calcWaypoints(value);
+        if(key != undefined) insertToTable(3, key, firstSecond, 0, 0, key, value.length); // FIXME this is not correct
         await drawRouteAfterSeconds(locations, firstSecond, color);
     }
 }
@@ -148,19 +160,19 @@ async function drawRoute(locationRoute, color) {
                 clearRoute(locRoute);
                 return;
             }
-            if(point.isPicking) {
+            if (point.isPicking) {
                 drawSquare(point.x, point.y, color);
                 drawLocationGrab(point.x, point.y);
             }
-            else{
+            else {
                 drawSquare(point.x, point.y, color);
                 ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
-            } 
+            }
 
             await sleep(speedValue);
-            
+
             drawSquare(point.x, point.y, color);
-            if(point.isPicking) {
+            if (point.isPicking) {
                 drawLocationGrab(point.x, point.y);
             }
 
@@ -173,23 +185,23 @@ async function drawRoute(locationRoute, color) {
 
 function shadeColor(color, percent) {
 
-    var R = parseInt(color.substring(1,3),16);
-    var G = parseInt(color.substring(3,5),16);
-    var B = parseInt(color.substring(5,7),16);
+    var R = parseInt(color.substring(1, 3), 16);
+    var G = parseInt(color.substring(3, 5), 16);
+    var B = parseInt(color.substring(5, 7), 16);
 
     R = parseInt(R * (100 + percent) / 100);
     G = parseInt(G * (100 + percent) / 100);
     B = parseInt(B * (100 + percent) / 100);
 
-    R = (R<255)?R:255;  
-    G = (G<255)?G:255;  
-    B = (B<255)?B:255;  
+    R = (R < 255) ? R : 255;
+    G = (G < 255) ? G : 255;
+    B = (B < 255) ? B : 255;
 
-    var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
-    var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
-    var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+    var RR = ((R.toString(16).length == 1) ? "0" + R.toString(16) : R.toString(16));
+    var GG = ((G.toString(16).length == 1) ? "0" + G.toString(16) : G.toString(16));
+    var BB = ((B.toString(16).length == 1) ? "0" + B.toString(16) : B.toString(16));
 
-    return "#"+RR+GG+BB;
+    return "#" + RR + GG + BB;
 }
 
 // clearRoute(locRoute, orig_color);
@@ -220,19 +232,19 @@ async function drawPreviousRoute(locationRoute, orig_color) {
                 clearRoute(locRoute);
                 return;
             }
-            counter ++;
-            if(counter > 50){
-                let a=1;
+            counter++;
+            if (counter > 50) {
+                let a = 1;
                 counter = 0;
             }
             drawSquare(point.x, point.y, color);
             ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
-           
 
-            
-            
+
+
+
             drawSquare(point.x, point.y, color);
-            
+
 
         } collition = false
     }
@@ -309,13 +321,13 @@ function sleep(ms) {
  * @param buttonAction passing add or remove depending on which button is clicked. 
  */
 function modifySpeed(buttonAction) {
-    
-    if (buttonAction == 'add' && speedText < 4) {         
+
+    if (buttonAction == 'add' && speedText < 4) {
         speedText = speedText + 1;
-        speedValue = speedValue/10 ;
-    } else if(buttonAction=='remove' && speedText >1) {
+        speedValue = speedValue / 10;
+    } else if (buttonAction == 'remove' && speedText > 1) {
         speedText = speedText - 1;
-        speedValue = speedValue*10; 
+        speedValue = speedValue * 10;
     }
     document.getElementById('speed_text').innerHTML = "Velocitat Actual: " + speedText;
 }
@@ -398,3 +410,83 @@ function getSharedAndCollitionLocations() {
         });
     });
 }
+
+
+
+function insertToTable(status, client_id, entry_time, exit_time, start_time, ticket_id) { // TODO: Add qty_articles_picked so we can do ex: 2/30
+
+    // Define the content of the new row using variables
+    if (status == 1) {
+        statusClass = 'completed';
+        statusText = 'Completado';
+    }
+    else if (status == 2) {
+        statusClass = 'in-route';
+        statusText = 'En ruta';
+    }
+    else if (status == 3) {
+        statusClass = 'awaiting';
+        statusText = 'Esperando';
+    }
+
+    // define status class 
+
+
+    // var statusClass = 'completed'; // Use 'completed', 'in-route', or 'waiting' accordingly
+    // var statusText = 'Completado'; // Use 'Completado', 'En ruta', or 'En espera' accordingly
+    var clientNumber = client_id;
+    var entryTime = entry_time;
+    var exitTime = exit_time;
+    var duration = start_time;
+    var ticketNumber = ticket_id;
+    var itemCount = ticketsProductListing[ticket_id];
+
+    // Find the table within the 'statuses' div
+    var tableBody = document.getElementById('statuses');
+    if (!tableBody) {
+        console.error('Table body not found inside #statuses');
+        return;
+    }
+
+    // Create the new row and cells
+    var newRow = document.createElement('tr');
+
+    // Append the status cell
+    var statusCell = document.createElement('td');
+    var statusSpan = document.createElement('span');
+    statusSpan.className = statusClass;
+    statusSpan.textContent = '● ';
+    statusCell.appendChild(statusSpan);
+    statusCell.append(statusText);
+    newRow.appendChild(statusCell);
+
+    // Append other cells
+    var clientCell = document.createElement('td');
+    clientCell.textContent = clientNumber;
+    newRow.appendChild(clientCell);
+
+    var entryCell = document.createElement('td');
+    entryCell.textContent = entryTime;
+    newRow.appendChild(entryCell);
+
+    var exitCell = document.createElement('td');
+    exitCell.textContent = exitTime;
+    newRow.appendChild(exitCell);
+
+    var durationCell = document.createElement('td');
+    durationCell.textContent = duration;
+    newRow.appendChild(durationCell);
+
+    var ticketCell = document.createElement('td');
+    ticketCell.textContent = ticketNumber;
+    newRow.appendChild(ticketCell);
+
+    var itemCell = document.createElement('td');
+    itemCell.textContent = itemCount;
+    newRow.appendChild(itemCell);
+
+    // Append the new row to the table body
+    tableBody.appendChild(newRow);
+}
+
+// Call the function to append the row

@@ -26,3 +26,23 @@ body {
     font-size: 16px;
     font-weight: 900;
 }
+
+ /* Add your CSS styling here */
+ .completed { color: green; }
+ .in-route { color: blue; }
+ .waiting { color: red; }
+ 
+
+ .table {
+    display: table;
+    border-collapse: collapse;
+    border-spacing: 2px;
+    border-radius: 10px;
+    
+}
+
+.table hr, .table tr, .table td, .table th {
+    padding: 10px;
+    border: 1px solid black;
+    margin: 0px;
+}

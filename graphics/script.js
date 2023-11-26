@@ -49,6 +49,7 @@ function readFile(e) {
 
 // global dictionary count
 let ticketsProductListing = {};
+let ticketsToRows = {};
 let shopOpeningTime;
 /**
  * Get content of the CSV file, line by line, splitting it by semicolon.
@@ -118,7 +119,7 @@ async function calculateFirstcustomerSec() {
         value = sortRouteByTime(value);
         const firstSecond = (+value[0].sec) * speedValue;
         const locations = calcWaypoints(value);
-        if(key != undefined) insertToTable(3, value[0].customer_id, firstSecond, 0, 0, key, value.length); // FIXME this is not correct
+        if(key != undefined) ticketsToRows[key] = insertToTable(3, value[0].customer_id, firstSecond, 0, 0, key, value.length); // FIXME this is not correct
         await drawRouteAfterSeconds(locations, firstSecond, color);
     }
 }
@@ -166,6 +167,10 @@ async function drawRoute(locationRoute, color) {
                 drawLocationGrab(point.x, point.y);
             }
             else {
+                idOfRowToUpdate = ticketsToRows[point.ticket_id];
+                statusCell = document.getElementById(idOfRowToUpdate);
+                statusCell.innerHTML = '<span class="in-route">● </span>En ruta';
+
                 drawSquare(point.x, point.y, color);
                 ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
             }
@@ -259,10 +264,18 @@ async function drawPreviousRoute(locationRoute, orig_color) {
  * @return returns
  */
 function clearRoute(locationRoute, color) {
+    
     for (let point of locationRoute) { ctxSquare.clearRect(point.x, point.y, DIM, DIM); }
     const lastLocation = locationRoute[locationRoute.length - 1]
     const colorTicket = customerTickets.get(color);
     for (let [key, value] of locationsShared) {
+        if(color != undefined){
+            // if color is set, we've finished the route
+            idOfRowToUpdate = ticketsToRows[lastLocation.ticket_id];
+            statusCell = document.getElementById(idOfRowToUpdate);
+            statusCell.innerHTML = '<span class="finished">● </span>Finalizado';
+            
+        }
         if (value.length == 0) continue
         value.delete(colorTicket);
         locationsShared.set(key, value);
@@ -468,9 +481,10 @@ function insertToTable(status, client_id, entry_time, exit_time, start_time, tic
 
     // Create the new row and cells
     var newRow = document.createElement('tr');
-
+    
     // Append the status cell
     var statusCell = document.createElement('td');
+    statusCell.id = "id"+ticket_id;
     var statusSpan = document.createElement('span');
     statusSpan.className = statusClass;
     statusSpan.textContent = '● ';
@@ -505,6 +519,8 @@ function insertToTable(status, client_id, entry_time, exit_time, start_time, tic
 
     // Append the new row to the table body
     tableBody.appendChild(newRow);
+
+    return "id"+ticket_id;
 }
 
 // Call the function to append the row

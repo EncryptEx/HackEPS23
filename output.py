@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 
-def orderTicketEntries(ticket_entries: dict, order: list):
+def orderTicketEntries(ticket_entries: dict[int,TicketEntry], order: list)-> list(TicketEntry):
     aux = []
     for i in order:
         aux.append(ticket_entries[i])
@@ -15,7 +15,7 @@ def orderTicketEntries(ticket_entries: dict, order: list):
 
 
 
-def genera_csv_out(ordered_ticket_entries, planogram, user):
+def genera_csv_out(ordered_ticket_entries: list(TicketEntry), planogram, user):
     rows_to_add=[]
     time=0
     lastCheck = TicketEntry("paso-entrada", 0, None,  None) 

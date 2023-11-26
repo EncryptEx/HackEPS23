@@ -54,16 +54,19 @@ function getDataOfFile(contents) {
     const dataCSV = [];
     const breakLine = contents.split("\n");
     const shopOpeningTime = caculateOpenDate(breakLine);
+    let isPicking;
 
     for (let i = 1; i < breakLine.length; i++) {
         let [customer_id, ticket_id, x, y, picking, x_y_date_time] = breakLine[i].split(';');
-        if(picking == '1') drawLocationGrab((x-1)*DIM,(y-1)*DIM);
         var index = dataCSV.findIndex((element) => element[0] === customer_id);
         if (index === -1) {
             const sec = epochConverter(x_y_date_time, shopOpeningTime)
             if (tickets.has(ticket_id)) {
                 const locationsList = tickets.get(ticket_id);
-                locationsList.push({ x, y, sec, ticket_id });
+                // if(picking == '1') drawLocationGrab((x-1)*DIM,(y-1)*DIM);
+                isPicking = picking == '1';
+
+                locationsList.push({ x, y, sec, ticket_id , isPicking});
                 tickets.set(ticket_id, locationsList);
             }
             else { tickets.set(ticket_id, [{ x, y, sec, ticket_id }]); }
@@ -87,7 +90,7 @@ function calcWaypoints(locations) {
         var pt = locations[i];
         var dx = (pt.x - 1) * DIM;
         var dy = (pt.y - 1) * DIM;
-        waypoints.push({ x: dx, y: dy, s: pt.sec, t: (time + i) });
+        waypoints.push({ x: dx, y: dy, s: pt.sec, t: (time + i), isPicking: pt.isPicking});
     }
     return (waypoints);
 }
@@ -125,6 +128,7 @@ function drawRouteAfterSeconds(locations, firstSecond, color) {
 async function drawRoute(locationRoute, color) {
     const locRoute = locationRoute;
     let collition = false
+    // debugger;
     for (let point of locRoute) {
         for (let loc of locationsCollition) {
             const x = ((+loc.split('U')[0]) - 1) * DIM
@@ -143,11 +147,21 @@ async function drawRoute(locationRoute, color) {
                 clearRoute(locRoute);
                 return;
             }
-            drawSquare(point.x, point.y, color);
-            ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
+            if(point.isPicking) {
+                drawSquare(point.x, point.y, color);
+                drawLocationGrab(point.x, point.y);
+            }
+            else{
+                drawSquare(point.x, point.y, color);
+                ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
+            } 
 
             await sleep(speedValue);
+            
             drawSquare(point.x, point.y, color);
+            if(point.isPicking) {
+                drawLocationGrab(point.x, point.y);
+            }
 
         } collition = false
     }

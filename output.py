@@ -3,7 +3,7 @@ from tickets import TicketEntry, get_tickets
 from article_picking_time import get_article_picking_time, search_article_picking_time
 from utils import create_csv, append_to_csv
 from datetime import datetime
-from transformar_a_matriu import get_article_coords
+from transformar_a_matriu import get_article_coords, get_article_coords_pickup
 from datetime import datetime, timedelta
 
 
@@ -36,7 +36,7 @@ def genera_csv_out(ordered_ticket_entries, planogram, user, product_offsets):
                 time += timedelta(seconds=1)
         # first, the time it delays to pick an item
 
-        x, y = get_article_coords(planogram, checkpoint.article_id)
+        x, y = get_article_coords_pickup(planogram, checkpoint.article_id)
         for j in range(len(checkpoint.quantity)):
             for i in range(int(user.picking_offset) + int(product_offset(checkpoint.article_id, j+1, product_offsets))):
                 rows_to_add.append([user.id, user.ticket_id, x, y, 1, time.strftime("%Y-%m-%d %H:%M:%S")])

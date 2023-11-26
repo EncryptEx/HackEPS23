@@ -6,6 +6,7 @@ from transformar_a_matriu import transformar_a_problema_lineal, obtenir_assignac
 from algorisme import minimum_assignment, algorisme_ineficient,tsp
 from pprint import pprint
 from utils import create_csv
+from output import genera_csv_usuari
 
 
 midaMatriuCritica = 17
@@ -19,7 +20,7 @@ users = populate_users_with_ticket_entries(users)
 
 create_csv(file_name, ['customer_id', 'ticket_id','x','y','picking', 'x_y_date_time'])
 
-for user in users.values():
+for _, user in users.items():
     tickets = {} 
     for i, ticketEntrie in enumerate(user.ticketEntries):
         tickets[i] = ticketEntrie
@@ -34,4 +35,5 @@ for user in users.values():
 
     ordered_ticket_entries = obtenir_assignacions_ordenades(solucio_ticket_entries) 
 
-    genera_csv_out_usuari(ordered_ticket_entries, tickets, planogram, user, file_name)
+    genera_csv_usuari(ordered_ticket_entries, tickets, planogram, user, file_name)
+    break

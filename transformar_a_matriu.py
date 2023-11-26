@@ -186,8 +186,8 @@ def obtenir_assignacions_ordenades(assignacio_optima, matriu=None):
     
     #if assignacio_en_ordre:
     #        assignacio_en_ordre.append(assignacio_en_ordre.pop(0))
-    #assignacio_en_ordre.pop(0)
-    #assignacio_en_ordre.pop(0)
+    assignacio_en_ordre.pop(0)
+    assignacio_en_ordre.pop(0)
     return assignacio_en_ordre
 
     
@@ -255,6 +255,17 @@ def map_to_original_indices(optimized_indices, elements_substituits):
         
         ind = optimized_indices.index(x)
         optimized_indices.insert(ind, y)
+
+        trobat = False
+        for i in range(len(optimized_indices)):
+            if optimized_indices[i] == y and not trobat: 
+                trobat = True
+            elif optimized_indices[i] >= y:
+                optimized_indices[i] += 1
+
     return optimized_indices
+
+
+
 
 

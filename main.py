@@ -38,4 +38,4 @@ print(ordered_ticket_entries)
 
 
 
-genera_csv_out(ordered_ticket_entries, planogram, tickets)
+#genera_csv_out(ordered_ticket_entries, planogram, tickets)

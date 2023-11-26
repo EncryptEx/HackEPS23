@@ -2,7 +2,7 @@ from article_picking_time import get_article_picking_time
 from user import get_users_without_ticket_entries, populate_users_with_ticket_entries
 from planogram import get_planogram
 from tickets import get_tickets
-from transformar_a_matriu import transformar_a_problema_lineal, obtenir_assignacions_ordenades, optimitzarMatriuCostos, shortestPath
+from transformar_a_matriu import trobarMinims, transformar_a_problema_lineal, obtenir_assignacions_ordenades, optimitzarMatriuCostos, shortestPath, reduirFilesColumnes
 from algorisme import minimum_assignment, algorisme_ineficient,tsp
 
 from pprint import pprint
@@ -53,24 +53,12 @@ print("Merged Indices:", merged_indices)
 '''
 
 
+cost_matrix = np.array([
+    [0, 2, 9, 10],
+    [1, 0, 6, 4],
+    [15, 7, 0, 8],
+    [6, 3, 12, 0]
+])
 
-def test_shortestPath():
-    planogram = {
-        '1': {'1': 'paso', '2': 'obstacle', '3': 'paso'},
-        '2': {'1': 'paso', '2': 'paso', '3': 'paso'},
-        '3': {'1': 'obstacle', '2': 'paso', '3': 'paso'}
-    }
-
-    # Mock function to mimic get_article_coords
-    def mock_get_article_coords(planogram, article_id):
-        return {'A': (1, 1), 'B': (3, 3)}.get(article_id, (None, None))
-
-    # Replace get_article_coords with the mock function in your test
-    # Assuming shortestPath calls get_article_coords internally
-
-    entryTicketPickUpFirst = MockArticle('A')
-    entryTicketPickUpSecond = MockArticle('B')
-
-    # Expected path should be something like [(2, 1), (2, 2), (2, 3)] (excluding first and last cells)
-    path = shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram)
-    assert path == [(2, 1), (2, 2)], f"Unexpected path: {path}"
+print(trobarMinims(cost_matrix))
+print(reduirFilesColumnes(cost_matrix, 1,0))

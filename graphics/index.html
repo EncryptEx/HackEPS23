@@ -11,16 +11,22 @@
 <body>
 
 	<h1>ROCC: Recorrido Óptimo para Completar la Compra.</h1>
+	<ol>
+		<li>
+			<div class="divSpeed">
+				<button type="button" onclick="modifySpeed('remove')"> - </button>
+				<p id="speed_text"></p>
+				<button type="button" onclick="modifySpeed('add')"> + </button>
+			</div>
 
-	<div>Carga tu archivo CSV aquí:
-		<input type="file" name="filePicker" id="filePicker" size="24" accept='.csv' alt="" />
-	</div>
+		</li>
+		<li>
+			<div>Carga tu archivo CSV aquí:
+				<input type="file" name="filePicker" id="filePicker" size="24" accept='.csv' alt="" />
+			</div>
 
-	<div class="divSpeed">
-		<button type="button" onclick="modifySpeed('remove')"> - </button>
-		<p id="speed_text"></p>
-		<button type="button" onclick="modifySpeed('add')"> + </button>
-	</div>
+	</ol>
+
 
 	<p>Plano de la tienda.</p>
 

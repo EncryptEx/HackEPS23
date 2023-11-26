@@ -273,7 +273,7 @@ function clearRoute(locationRoute, color) {
             // if color is set, we've finished the route
             idOfRowToUpdate = ticketsToRows[lastLocation.ticket_id];
             statusCell = document.getElementById(idOfRowToUpdate);
-            statusCell.innerHTML = '<span class="finished">● </span>Finalizado';
+            statusCell.innerHTML = '<span class="completed">● </span>Finalizado';
             
         }
         if (value.length == 0) continue

@@ -12,12 +12,13 @@ def read_csv_file(file_name):
 
 def create_csv(file_name, headers):
     with open(file_name, mode='w', newline='') as file:
-        writer = csv.writer(file)
+        writer = csv.writer(file, delimiter=';')
         writer.writerow(headers)
 
 def append_to_csv(file_name, rows):
     with open(file_name, mode='a', newline='') as file:
-        writer = csv.writer(file)
+ 
+        writer = csv.writer(file, delimiter=';')
         for row in rows:
             writer.writerow(row)
 

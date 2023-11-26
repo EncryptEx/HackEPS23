@@ -3,10 +3,10 @@ from tickets import TicketEntry, get_tickets
 from article_picking_time import get_article_picking_time, search_article_picking_time
 from utils import create_csv, append_to_csv
 from datetime import datetime
+from typing import List, Dict
 
 
-
-def orderTicketEntries(ticket_entries: dict[int,TicketEntry], order: list)-> list(TicketEntry):
+def orderTicketEntries(ticket_entries: Dict[int,TicketEntry], order: List[int])-> list[TicketEntry]:
     aux = []
     for i in order:
         aux.append(ticket_entries[i])
@@ -15,7 +15,7 @@ def orderTicketEntries(ticket_entries: dict[int,TicketEntry], order: list)-> lis
 
 
 
-def genera_csv_out(ordered_ticket_entries: list(TicketEntry), planogram, user):
+def genera_csv_out(ordered_ticket_entries: list(TicketEntry), planogram, user, product_offsets):
     rows_to_add=[]
     time=0
     lastCheck = TicketEntry("paso-entrada", 0, None,  None) 
@@ -28,7 +28,7 @@ def genera_csv_out(ordered_ticket_entries: list(TicketEntry), planogram, user):
             # first, the time it delays to pick an item
             if(step.picking):
                 for j in range(0,len(checkpoint.quantity)):
-                    for i in range(0,user.picking_seconds+product_offset(j+1)):
+                    for i in range(0,user.picking_seconds+product_offset(j+1, product_offsets)):
                     # TODO: Make sure to check if is picking or not
                         rows_to_add.append([user.customer_id, user.ticket_id, x, y, step.picking, time])
                         time+=1
@@ -38,7 +38,7 @@ def genera_csv_out(ordered_ticket_entries: list(TicketEntry), planogram, user):
                 time+=1
             
 
-def product_offset(product_id, quantity):
+def product_offset(product_id, quantity, product_offsets):
     o1,o2,o3,o4,o5 = search_article_picking_time(product_offsets, product_id)
     if(quantity==1):
         return o1
@@ -48,11 +48,10 @@ def product_offset(product_id, quantity):
     else: return o5
 
 
-def genera_csv_usuari(index_order, tickets, planogram, filename, usuari):
-    product_offsets = get_article_picking_time("input/hackathon_article_picking_time.csv")
+def genera_csv_usuari(index_order, tickets, planogram, usuari, product_offsets, filename):
     ordered = orderTicketEntries(tickets, index_order)
 
-    rows_to_add = genera_csv_out(ordered, planogram, usuari)
+    rows_to_add = genera_csv_out(ordered, planogram, usuari, product_offsets)
     append_to_csv(filename, rows_to_add)
 
     

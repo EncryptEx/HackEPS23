@@ -41,7 +41,17 @@ def genera_csv_out(ordered_ticket_entries, planogram, user, product_offsets):
             for i in range(int(user.picking_offset) + int(product_offset(checkpoint.article_id, j+1, product_offsets))):
                 rows_to_add.append([user.id, user.ticket_id, x, y, 1, time.strftime("%Y-%m-%d %H:%M:%S")])
                 time += timedelta(seconds=1)
-                
+
+        ultim = TicketEntry("paso-salida", 0, None,  None) 
+        lastCheck = checkpoint
+    newPath = shortestPath(ultim, lastCheck, planogram)
+    for step in newPath:
+        x,y = step
+        
+        for i in range(int(user.step_seconds)):
+            rows_to_add.append([user.id, user.ticket_id, x, y, 0, time.strftime("%Y-%m-%d %H:%M:%S")])
+            time += timedelta(seconds=1)
+
     return rows_to_add
 
 def product_offset(product_id, quantity, product_offsets):

@@ -17,7 +17,7 @@ def genera_csv_usuari(index_order, tickets, planogram, usuari, product_offsets, 
 def orderTicketEntries(ticket_entries, order):
         aux = []
         for i in order:
-            aux.append(ticket_entries[i])
+            aux.append(ticket_entries.get(i))
         return aux
 
 def genera_csv_out(ordered_ticket_entries, planogram, user, product_offsets):

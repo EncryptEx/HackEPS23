@@ -49,6 +49,7 @@ function readFile(e) {
 
 // global dictionary count
 let ticketsProductListing = {};
+let shopOpeningTime;
 /**
  * Get content of the CSV file, line by line, splitting it by semicolon.
  * @param contents Content of the file
@@ -56,7 +57,7 @@ let ticketsProductListing = {};
 function getDataOfFile(contents) {
     const dataCSV = [];
     const breakLine = contents.split("\n");
-    const shopOpeningTime = caculateOpenDate(breakLine);
+    shopOpeningTime = caculateOpenDate(breakLine);
     let isPicking;
     let productList = 0;
 
@@ -71,7 +72,7 @@ function getDataOfFile(contents) {
                 isPicking = picking == '1';
 
                 // get the current elements to get
-                locationsList.push({ x, y, sec, ticket_id, isPicking });
+                locationsList.push({ x, y, sec, ticket_id, isPicking, customer_id, x_y_date_time });
                 if (isPicking && (lastX != x || lastY != y)) {
                     productList++;
                     ticketsProductListing[ticket_id] = productList;
@@ -80,7 +81,7 @@ function getDataOfFile(contents) {
                 lastY = y;
                 tickets.set(ticket_id, locationsList);
             }
-            else { tickets.set(ticket_id, [{ x, y, sec, ticket_id }]); }
+            else { tickets.set(ticket_id, [{ x, y, sec, ticket_id, customer_id, x_y_date_time }]); }
             if (ticket_id) locationsTotal.push({ x: x, y: y, s: sec, t: ticket_id });
         }
 
@@ -117,7 +118,7 @@ async function calculateFirstcustomerSec() {
         value = sortRouteByTime(value);
         const firstSecond = (+value[0].sec) * speedValue;
         const locations = calcWaypoints(value);
-        if(key != undefined) insertToTable(3, key, firstSecond, 0, 0, key, value.length); // FIXME this is not correct
+        if(key != undefined) insertToTable(3, value[0].customer_id, firstSecond, 0, 0, key, value.length); // FIXME this is not correct
         await drawRouteAfterSeconds(locations, firstSecond, color);
     }
 }
@@ -344,6 +345,12 @@ function epochConverter(date, shopOpeningTime) {
     return ((epochtime - shopOpeningTime) / 1000);
 }
 
+// reverse epochConverter
+function epochConverterReverse(seconds, shopOpeningTime) {
+    var epochtime = seconds * 1000 + shopOpeningTime;
+    return (new Date(epochtime));
+}
+
 /**
  * Sort arrayValues by time and returns it.
  * @param arrayValues array of locations and time
@@ -435,9 +442,20 @@ function insertToTable(status, client_id, entry_time, exit_time, start_time, tic
     // var statusClass = 'completed'; // Use 'completed', 'in-route', or 'waiting' accordingly
     // var statusText = 'Completado'; // Use 'Completado', 'En ruta', or 'En espera' accordingly
     var clientNumber = client_id;
-    var entryTime = entry_time;
-    var exitTime = exit_time;
-    var duration = start_time;
+    var entryTime = tickets.get(ticket_id)[0].x_y_date_time;
+    var exitTime = tickets.get(ticket_id)[tickets.get(ticket_id).length - 1].x_y_date_time;
+    var duration = epochConverter(exitTime,shopOpeningTime)-epochConverter(entryTime, shopOpeningTime); // this is in secs
+
+
+
+
+    // convert this seconds into h,m,s
+    var hours = Math.floor(duration / 3600);
+    var minutes = Math.floor((duration - (hours * 3600)) / 60);
+    var seconds = duration - (hours * 3600) - (minutes * 60);
+    duration = hours + 'h, ' + minutes + 'm, ' + seconds+ 's ';
+
+    
     var ticketNumber = ticket_id;
     var itemCount = ticketsProductListing[ticket_id];
 

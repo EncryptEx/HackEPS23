@@ -16,3 +16,7 @@ def get_article_picking_time(file_name):
         count+=1
     return article_picking_time
 
+def search_article_picking_time(product_offsets, article_id):
+    for k,v in product_offsets.items():
+        if(k == article_id):
+            return v['timings']

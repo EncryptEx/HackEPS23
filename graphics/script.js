@@ -170,7 +170,7 @@ async function drawRoute(locationRoute, color) {
                 idOfRowToUpdate = ticketsToRows[point.ticket_id];
                 statusCell = document.getElementById(idOfRowToUpdate);
                 statusCell.innerHTML = '<span class="in-route">● </span>En ruta';
-
+                
                 drawSquare(point.x, point.y, color);
                 ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
             }
@@ -239,10 +239,7 @@ async function drawPreviousRoute(locationRoute, orig_color) {
                 return;
             }
             counter++;
-            if (counter > 50) {
-                let a = 1;
-                counter = 0;
-            }
+            
             drawSquare(point.x, point.y, color);
             ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
 
@@ -401,9 +398,14 @@ function drawLocationsCollition(x, y) {
     ctxIconCollition.drawImage(imgCollition, x, y, DIM, DIM);
 }
 
-
+lastXgrab = 0;
+lastYgrab = 0;
+currentProductCount = 0;
 function drawLocationGrab(x, y) {
+    if(lastXgrab != x || lastYgrab != y) currentProductCount+=1;
     ctxIconCollition.drawImage(imgPick, x, y, DIM, DIM);
+    lastXgrab = x;
+    lastYgrab = y;
 }
 /**
  * Function to set a Shared locations list 

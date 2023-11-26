@@ -10,6 +10,8 @@ from output import genera_csv_usuari
 
 
 midaMatriuCritica = 17
+
+
 file_name = "output.csv"
 
 article_picking_time = get_article_picking_time('./input/hackathon_article_picking_time.csv')
@@ -35,5 +37,5 @@ for _, user in users.items():
 
     ordered_ticket_entries = obtenir_assignacions_ordenades(solucio_ticket_entries) 
 
-    genera_csv_usuari(ordered_ticket_entries, tickets, planogram, user, file_name)
-    break
+    genera_csv_usuari(ordered_ticket_entries, tickets, planogram, user, article_picking_time, file_name)
+

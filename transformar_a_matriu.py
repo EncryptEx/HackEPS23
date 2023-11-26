@@ -96,7 +96,10 @@ def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
     # Coordinates of the start and end points
     x0, y0 = get_article_coords(planogram, entryTicketPickUpFirst.article_id)
     xf, yf = get_article_coords(planogram, entryTicketPickUpSecond.article_id)
-
+    x0 = int(x0)
+    y0 = int(y0)    
+    xf = int(xf)
+    yf = int(yf)
     maxX = len(planogram)
     maxY = len(planogram.get('1'))
     # Priority queue for Dijkstra's algorithm

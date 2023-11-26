@@ -94,29 +94,27 @@ def shortestPathDistance(entryTicketPickUpFirst, entryTicketPickUpSecond, planog
 
 def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
     # Coordinates of the start and end points
-    x0, y0 = get_article_coords(planogram, entryTicketPickUpFirst.article_id)
-    xf, yf = get_article_coords(planogram, entryTicketPickUpSecond.article_id)
+    x0, y0 = get_article_coords_pickup(planogram, entryTicketPickUpFirst.article_id)
+    xf, yf = get_article_coords_pickup(planogram, entryTicketPickUpSecond.article_id)
     x0 = int(x0)
     y0 = int(y0)    
     xf = int(xf)
     yf = int(yf)
+
     maxX = len(planogram)
     maxY = len(planogram.get('1'))
     # Priority queue for Dijkstra's algorithm
     pq = []
-    heapq.heappush(pq, (0, (x0, y0)))  # (distance, (x, y))
+    heapq.heappush(pq, ([(x0,y0)],(0, (x0, y0))))  # (path, (distance, (x, y)))
 
     # A set to keep track of visited cells
     visited = set()
-
-    # Dictionary to store the predecessors of each node
-    predecessors = {}
 
     # Movement vectors for up, down, left, right
     movements = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
     while pq:
-        dist, (x, y) = heapq.heappop(pq)
+        path, (dist, (x, y)) = heapq.heappop(pq)
 
         # If the cell is already visited, skip it
         if (x, y) in visited:
@@ -126,46 +124,21 @@ def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
 
         # Check if we've reached the destination
         if (x, y) == (xf, yf):
-            return reconstruct_path(predecessors, (x0, y0), (xf, yf))
+            return path
 
         # Check adjacent cells
+        
         for dx, dy in movements:
             nx, ny = x + dx, y + dy
-            if nx >= maxX or ny >= maxY:
-                continue
-            next_cell = planogram.get(str(nx), {}).get(str(ny))
 
-            # Continue only if the cell is a 'paso' and not visited
-            if next_cell and next_cell.description == 'paso' and (nx, ny) not in visited:
-                predecessors[(nx, ny)] = (x, y)
-                heapq.heappush(pq, (dist + 1, (nx, ny)))
-
+            # Check if the new coordinates are within the planogram boundaries
+            if 0 <= nx < maxX and 0 <= ny < maxY:
+                next_cell = planogram.get(str(nx), {}).get(str(ny))
+                # Continue only if the cell is a 'paso' and not visited
+                if next_cell and next_cell.description == 'paso' and (nx, ny) not in visited:
+                    newPath = path + [(nx, ny)]
+                    heapq.heappush(pq, (newPath, (dist + 1, (nx, ny))))
     return []
-
-def reconstruct_path(predecessors, start, end):
-    """
-    Reconstructs the path from start to end using the predecessors dictionary.
-    Excludes the first and last cells in the path.
-
-    :param predecessors: Dictionary mapping each cell to its predecessor
-    :param start: Starting cell coordinates
-    :param end: Ending cell coordinates
-    :return: List of cells in the path, excluding the first and last cells
-    """
-    path = []
-    current = end
-
-    while current != start:
-        if current != end:
-            path.insert(0, current)
-        current = predecessors.get(current)
-
-    # Remove the first cell from the path (which is the last in the list now)
-    if path:
-        path.pop()
-
-    return path
-
 
 def find_next_domino(pieces, current_sequence):
     if not pieces:

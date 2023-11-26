@@ -23,6 +23,7 @@ users = populate_users_with_ticket_entries(users)
 create_csv(file_name, ['customer_id', 'ticket_id','x','y','picking', 'x_y_date_time'])
 
 for _, user in users.items():
+    user = users.get('c9')
     tickets = {} 
     for i, ticketEntrie in enumerate(user.ticketEntries):
         tickets[i] = ticketEntrie
@@ -39,3 +40,4 @@ for _, user in users.items():
 
     genera_csv_usuari(ordered_ticket_entries, tickets, planogram, user, article_picking_time, file_name)
 
+    break

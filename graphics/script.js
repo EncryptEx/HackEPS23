@@ -90,7 +90,7 @@ function calcWaypoints(locations) {
         var pt = locations[i];
         var dx = (pt.x - 1) * DIM;
         var dy = (pt.y - 1) * DIM;
-        waypoints.push({ x: dx, y: dy, s: pt.sec, t: (time + i), isPicking: pt.isPicking});
+        waypoints.push({ x: dx, y: dy, s: pt.sec, t: (time + i), isPicking: pt.isPicking, ticket_id: pt.ticket_id});
     }
     return (waypoints);
 }
@@ -116,6 +116,7 @@ async function calculateFirstcustomerSec() {
  * @param color HEX color value
  */
 function drawRouteAfterSeconds(locations, firstSecond, color) {
+    drawPreviousRoute(locations, color);
     setTimeout(() => {
         drawRoute(locations, color);
     }, firstSecond);
@@ -169,6 +170,75 @@ async function drawRoute(locationRoute, color) {
     clearRoute(locRoute, color);
 
 }
+
+function shadeColor(color, percent) {
+
+    var R = parseInt(color.substring(1,3),16);
+    var G = parseInt(color.substring(3,5),16);
+    var B = parseInt(color.substring(5,7),16);
+
+    R = parseInt(R * (100 + percent) / 100);
+    G = parseInt(G * (100 + percent) / 100);
+    B = parseInt(B * (100 + percent) / 100);
+
+    R = (R<255)?R:255;  
+    G = (G<255)?G:255;  
+    B = (B<255)?B:255;  
+
+    var RR = ((R.toString(16).length==1)?"0"+R.toString(16):R.toString(16));
+    var GG = ((G.toString(16).length==1)?"0"+G.toString(16):G.toString(16));
+    var BB = ((B.toString(16).length==1)?"0"+B.toString(16):B.toString(16));
+
+    return "#"+RR+GG+BB;
+}
+
+// clearRoute(locRoute, orig_color);
+let globalColor;
+
+async function drawPreviousRoute(locationRoute, orig_color) {
+    debugger;
+    color = shadeColor(orig_color, +30);
+    let counter = 0;
+
+    const locRoute = locationRoute;
+    let collition = false
+    // debugger;
+    for (let point of locRoute) {
+        for (let loc of locationsCollition) {
+            const x = ((+loc.split('U')[0]) - 1) * DIM
+            const y = ((+loc.split('U')[1]) - 1) * DIM
+            const s = ((+loc.split('U')[2]))
+            if (point.s == s && point.x == x && point.y == y) {
+                drawSquare(point.x, point.y, color);
+                drawLocationsCollition(x, y)
+                collition = true
+                continue
+            }
+        }
+        if (!collition) {
+            if (point.s != point.t) {
+                clearRoute(locRoute);
+                return;
+            }
+            counter ++;
+            if(counter > 50){
+                let a=1;
+                counter = 0;
+            }
+            drawSquare(point.x, point.y, color);
+            ctxIconCustomer.drawImage(img, point.x, point.y, DIM, DIM);
+           
+
+            
+            
+            drawSquare(point.x, point.y, color);
+            
+
+        } collition = false
+    }
+    globalColor = orig_color;
+}
+
 /**
  * Deletes the points of the route, when the customer leaves the store 
  * @param locationRoute customer list of locations points 

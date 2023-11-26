@@ -140,11 +140,29 @@ def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
     return []
 
 def reconstruct_path(predecessors, start, end):
-    path = [end]
-    while path[-1] != start:
-        path.append(predecessors[path[-1]])
-    path.reverse()
+    """
+    Reconstructs the path from start to end using the predecessors dictionary.
+    Excludes the first and last cells in the path.
+
+    :param predecessors: Dictionary mapping each cell to its predecessor
+    :param start: Starting cell coordinates
+    :param end: Ending cell coordinates
+    :return: List of cells in the path, excluding the first and last cells
+    """
+    path = []
+    current = end
+
+    while current != start:
+        if current != end:
+            path.insert(0, current)
+        current = predecessors.get(current)
+
+    # Remove the first cell from the path (which is the last in the list now)
+    if path:
+        path.pop()
+
     return path
+
 
 def find_next_domino(pieces, current_sequence):
     if not pieces:
@@ -160,7 +178,6 @@ def find_next_domino(pieces, current_sequence):
     return None
 
 def obtenir_assignacions_ordenades(assignacio_optima, matriu=None):
-    _, assignacio_optima = assignacio_optima
     ultim_numero = len(assignacio_optima) - 1
 
     index_to_reverse = next((i for i, elem in enumerate(assignacio_optima) if elem == ultim_numero), ultim_numero)
@@ -169,51 +186,75 @@ def obtenir_assignacions_ordenades(assignacio_optima, matriu=None):
     
     #if assignacio_en_ordre:
     #        assignacio_en_ordre.append(assignacio_en_ordre.pop(0))
-    assignacio_en_ordre.pop(0)
-    assignacio_en_ordre.pop(0)
+    #assignacio_en_ordre.pop(0)
+    #assignacio_en_ordre.pop(0)
     return assignacio_en_ordre
 
     
+def reduirFilesColumnes(mat, xmin, ymin):
+    num_rows, num_cols = len(mat), len(mat[0])
+
+    # Add up the rows
+    for col in range(num_cols):
+        mat[xmin][col] += mat[ymin][col]
+
+    # Add up the columns
+    for row in range(num_rows):
+        if row != ymin:  # Skip the merged row
+            mat[row][xmin] += mat[row][ymin]
+
+    # Remove the merged row and column
+    new_mat = []
+    for i in range(num_rows):
+        if i != ymin:
+            new_row = [mat[i][j] for j in range(num_cols) if j != ymin]
+            new_mat.append(new_row)
+
+    return new_mat
+
+
+def trobarMinims(mat):
+    min_distance = float('inf')
+    xmin = ymin = -1
+
+    for i in range(len(mat)):
+        for j in range(len(mat[i])):
+            if i != j and mat[i][j] != 0 and mat[i][j] < min_distance:
+                min_distance = mat[i][j]
+                xmin, ymin = i, j
+
+    if xmin == -1 or ymin == -1:
+        raise ValueError("Failed to find minimum non-zero, non-diagonal pair. Matrix may be too small or improperly formatted.")
+    
+    if xmin <= ymin:
+        ordered_tuple = (xmin, ymin)
+    else:
+        ordered_tuple = (ymin, xmin)
+
+    return ordered_tuple
+    return xmin, ymin
+
+
 def optimitzarMatriuCostos(matriu, nombre_files_a_reduir):
-    matriu = np.array(matriu)  # Ensure it's a NumPy array
-    if np.any(np.isnan(matriu)) or np.any(np.isinf(matriu)):
-        raise ValueError("Matrix contains NaN or inf values.")
-
-    merged_indices = []
-
-    while len(matriu) > nombre_files_a_reduir:
-        min_distance = float('inf')
-        pair_to_merge = None
-
-        for i in range(len(matriu)):
-            for j in range(i + 1, len(matriu)):
-                # Check if subtraction is valid
-                if not np.any(np.isnan(matriu[i])) and not np.any(np.isnan(matriu[j])):
-                    distance = np.linalg.norm(matriu[i] - matriu[j])
-                    if distance < min_distance:
-                        min_distance = distance
-                        pair_to_merge = (i, j)
-
-        if pair_to_merge is None:
-            raise ValueError("No valid pair found to merge. Check the matrix format and values.")
-
-        i, j = pair_to_merge
-        matriu[i] += matriu[j]
-        matriu = np.delete(matriu, j, axis=0)
-        matriu[:, i] += matriu[:, j]
-        matriu = np.delete(matriu, j, axis=1)
-
-        merged_indices.append(pair_to_merge)
-
-    return matriu, merged_indices
+    mat = matriu.copy()
+    reduced = []
+    while len(mat) > nombre_files_a_reduir:
+        xmin, ymin = trobarMinims(mat)
+        mat = reduirFilesColumnes(mat,xmin, ymin)
+        reduced.append((xmin, ymin))
+    return mat, reduced
 
 
 
 
 def map_to_original_indices(optimized_indices, elements_substituits):
-
-    for indexs in elements_substituits[::-1]:
+    reverse = elements_substituits[::-1]
+    _, optimized_indices = optimized_indices
+    for indexs in reverse:
         x, y = indexs
+        
         ind = optimized_indices.index(x)
         optimized_indices.insert(ind, y)
     return optimized_indices
+
+

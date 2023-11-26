@@ -27,6 +27,11 @@ def get_planogram(file_name):
         count+=1
     return planogram
 
+def get_article(palnogram, article_id):
+    for x,dict in palnogram.items():
+        for y,cell in dict.items():
+            if cell.description == article_id:
+                return cell
 
 
 def get_article_coords(palnogram, article_id):
@@ -34,5 +39,14 @@ def get_article_coords(palnogram, article_id):
         for y,cell in dict.items():
             if cell.description == article_id:
                 return x,y
+
+def get_article_coords_pickup(palnogram, article_id):
+    for x,dict in palnogram.items():
+        for y,cell in dict.items():
+            if cell.description == article_id:
+                if article_id == "paso-salida" or article_id == "paso-entrada":
+                    return x,y
+                return cell.picking_x , cell.picking_y
+
 
 # get_planogram('./input/planogram_table.csv')

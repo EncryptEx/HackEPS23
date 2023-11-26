@@ -1,27 +1,54 @@
 import heapq
-from planogram import get_article_coords
+from planogram import get_article_coords, get_article_coords_pickup, get_article
+from pprint import pprint
+import math
+from tickets import TicketEntry
+import numpy as np
 
 def transformar_a_problema_lineal(usuari, planogram):
+
+    portaEntrada = TicketEntry("paso-entrada", 0, None,  None) #get_article(planogram, "paso-entrada")
+    portaSortida = TicketEntry("paso-salida", 0, None,  None) #get_article(planogram, "paso-salida")
+
     matriu = []
     for ticketEntrieFirst in usuari.ticketEntries:
         linia = []
         for ticketEntrieSec in usuari.ticketEntries:
             linia.append(shortestPathDistance(ticketEntrieFirst,ticketEntrieSec, planogram))
+
+        linia.append(shortestPathDistance(portaEntrada,ticketEntrieFirst, planogram))
+        linia.append(shortestPathDistance(portaSortida,ticketEntrieFirst, planogram))
         matriu.append(linia)
-    
+ 
+
+    linia = []
+    linia2 = []
+    for ticketEntrieFirst in usuari.ticketEntries:
+        linia.append(shortestPathDistance(portaEntrada,ticketEntrieFirst, planogram))
+        linia2.append(shortestPathDistance(portaSortida,ticketEntrieFirst, planogram))
+
+    linia.append(math.inf)
+    linia.append(0)
+    linia2.append(math.inf)
+    linia2.append(math.inf)
+    matriu.append(linia)
+    matriu.append(linia2)
+
     return matriu
 
-
-def shortestPathDistance(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram): #FIXME FER QUE NO RETORNI NI EL HEAD NI EL FINAL
+def shortestPathDistance(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
     
     # Coordinates of the start and end points
-    x0, y0 = get_article_coords(planogram, entryTicketPickUpFirst.article_id)
-    xf, yf = get_article_coords(planogram, entryTicketPickUpSecond.article_id)
-
+    x0, y0 = get_article_coords_pickup(planogram, entryTicketPickUpFirst.article_id)
+    xf, yf = get_article_coords_pickup(planogram, entryTicketPickUpSecond.article_id)
+    #print(x0, y0, xf, yf)
     x0 = int(x0)
     y0 = int(y0)    
     xf = int(xf)
     yf = int(yf)
+
+    if(x0,y0) == (xf, yf):
+        return math.inf
 
     maxX = len(planogram)
     maxY = len(planogram.get('1'))
@@ -38,6 +65,7 @@ def shortestPathDistance(entryTicketPickUpFirst, entryTicketPickUpSecond, planog
     movements = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
     while pq:
+        #pprint(pq)
         dist, (x, y) = heapq.heappop(pq)
 
         # If the cell is already visited, skip it
@@ -61,7 +89,6 @@ def shortestPathDistance(entryTicketPickUpFirst, entryTicketPickUpSecond, planog
             # Continue only if the cell is a 'paso' and not visited
             if next_cell and next_cell.description == 'paso' and (nx, ny) not in visited:
                 heapq.heappush(pq, (dist + 1, (nx, ny)))
-
 
     return -1
 
@@ -119,12 +146,74 @@ def reconstruct_path(predecessors, start, end):
     path.reverse()
     return path
 
+def find_next_domino(pieces, current_sequence):
+    if not pieces:
+        return current_sequence
+
+    last_piece = current_sequence[-1]
+    for i, piece in enumerate(pieces):
+        if piece[0] == last_piece[1]:
+            new_sequence = find_next_domino(pieces[:i] + pieces[i+1:], current_sequence + [piece])
+            if new_sequence:
+                return new_sequence
+
+    return None
+
 def obtenir_assignacions_ordenades(assignacio_optima, matriu=None):
-    # If only the row indices are needed
-    assignacions_ordenades = [row for row, _ in assignacio_optima]
+    _, assignacio_optima = assignacio_optima
+    ultim_numero = len(assignacio_optima) - 1
 
-    # If the actual values from the matrix are needed
-    if matriu is not None:
-        assignacions_ordenades = [matriu[row][col] for row, col in assignacio_optima]
+    index_to_reverse = next((i for i, elem in enumerate(assignacio_optima) if elem == ultim_numero), ultim_numero)
 
-    return assignacions_ordenades
+    assignacio_en_ordre = assignacio_optima[:index_to_reverse + 1][::-1] + assignacio_optima[index_to_reverse + 1:]
+    
+    #if assignacio_en_ordre:
+    #        assignacio_en_ordre.append(assignacio_en_ordre.pop(0))
+    assignacio_en_ordre.pop(0)
+    assignacio_en_ordre.pop(0)
+    return assignacio_en_ordre
+
+    
+def optimitzarMatriuCostos(matriu, nombre_files_a_reduir):
+    matriu = np.array(matriu)  # Ensure it's a NumPy array
+    if np.any(np.isnan(matriu)) or np.any(np.isinf(matriu)):
+        raise ValueError("Matrix contains NaN or inf values.")
+
+    merged_indices = []
+
+    while len(matriu) > nombre_files_a_reduir:
+        min_distance = float('inf')
+        pair_to_merge = None
+
+        for i in range(len(matriu)):
+            for j in range(i + 1, len(matriu)):
+                # Check if subtraction is valid
+                if not np.any(np.isnan(matriu[i])) and not np.any(np.isnan(matriu[j])):
+                    distance = np.linalg.norm(matriu[i] - matriu[j])
+                    if distance < min_distance:
+                        min_distance = distance
+                        pair_to_merge = (i, j)
+
+        if pair_to_merge is None:
+            raise ValueError("No valid pair found to merge. Check the matrix format and values.")
+
+        i, j = pair_to_merge
+        matriu[i] += matriu[j]
+        matriu = np.delete(matriu, j, axis=0)
+        matriu[:, i] += matriu[:, j]
+        matriu = np.delete(matriu, j, axis=1)
+
+        merged_indices.append(pair_to_merge)
+
+    return matriu, merged_indices
+
+
+
+
+def map_to_original_indices(optimized_indices, elements_substituits):
+
+    for indexs in elements_substituits[::-1]:
+        x, y = indexs
+        ind = optimized_indices.index(x)
+        optimized_indices.insert(ind, y)
+    return optimized_indices

@@ -28,7 +28,6 @@ def genera_csv_out(ordered_ticket_entries, planogram, user, product_offsets):
     for checkpoint in ordered_ticket_entries:
        
         newPath = shortestPath(lastCheck,checkpoint, planogram)
-        print(newPath)
         for step in newPath:
             x,y = step
         

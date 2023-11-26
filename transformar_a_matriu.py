@@ -105,7 +105,7 @@ def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
     maxY = len(planogram.get('1'))
     # Priority queue for Dijkstra's algorithm
     pq = []
-    heapq.heappush(pq, ([(x0,y0)],(0, (x0, y0))))  # (path, (distance, (x, y)))
+    heapq.heappush(pq, (0, ( [(x0,y0)],(x0, y0))) )  # (path, (distance, (x, y)))
 
     # A set to keep track of visited cells
     visited = set()
@@ -114,7 +114,7 @@ def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
     movements = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
     while pq:
-        path, (dist, (x, y)) = heapq.heappop(pq)
+        dist,(path, (x, y)) = heapq.heappop(pq)
 
         # If the cell is already visited, skip it
         if (x, y) in visited:
@@ -130,14 +130,14 @@ def shortestPath(entryTicketPickUpFirst, entryTicketPickUpSecond, planogram):
         
         for dx, dy in movements:
             nx, ny = x + dx, y + dy
-
+            newPath = path.copy()
             # Check if the new coordinates are within the planogram boundaries
             if 0 <= nx < maxX and 0 <= ny < maxY:
                 next_cell = planogram.get(str(nx), {}).get(str(ny))
                 # Continue only if the cell is a 'paso' and not visited
                 if next_cell and next_cell.description == 'paso' and (nx, ny) not in visited:
-                    newPath = path + [(nx, ny)]
-                    heapq.heappush(pq, (newPath, (dist + 1, (nx, ny))))
+                    newPath = newPath + [(nx, ny)]
+                    heapq.heappush(pq,  (dist + 1,(newPath,(nx, ny))))
     return []
 
 def find_next_domino(pieces, current_sequence):
